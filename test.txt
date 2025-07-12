@@ -1,0 +1,12 @@
+def safe_access(self, func):
+        @wraps(func)
+        def wrapper(filepath, mode='r', *args,  **kwargs,):
+            with open(filepath, mode) as file:
+                try:
+                    fcntl.flock(file, fcntl.LOCK_NB | fcntl.LOCK_EX)
+                    kwargs['file'] = file
+                    return func(filepath, mode, *args, **kwargs)
+                finally:
+                    fcntl.flock(file, fcntl.LOCK_NB | fcntl.LOCK_UN)
+
+        return wrapper
